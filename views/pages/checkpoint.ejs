@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+    <head>
+            <meta name="viewport" content="width=device-width, initial-scale=1"/>
+            <title>Map Area</title>
+             <!-- Bootstrap -->
+             <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">             
+             <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>        
+             <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+             <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>   
+     </head>
+<body>
+    <div class="container-fluid">
+            <div id="googleMap" style="width:100%;height:500px;"></div>
+
+        <div class="row">
+        <div class="col-md-6" style="text-align:center">
+                <h3 id="showresult"></h3>
+        </div>
+        <div  class="col-md-6 " style="text-align:center">
+            <button type="button" class="btn btn-sm btn-primary" id="changePage" onclick="moveBack()">Back </button>
+        </div>
+    </div>
+    </div>
+<script>
+    var polyMap;
+function myMap() {
+    var mapProp= {
+        center:new google.maps.LatLng(19.556550192037655, 73.5305767462595),
+        zoom:5,
+    };
+    var map=new google.maps.Map(document.getElementById("googleMap"),mapProp);
+    var mapData={}
+        $.get("http://localhost:1337/recent_point", function(data){
+            var savedData= data[0].co_ordinates.split(':')
+            var path = polyMap.getPath();
+
+            for(let i=0 ;i<savedData.length - 1;i++ ){
+                var points = savedData[i].split(',')
+                mapData= new google.maps.LatLng(parseFloat(points[0]),parseFloat(points[1]))
+                path.push(mapData);
+                map.setCenter(mapData)
+            }
+            
+        });
+         polyMap = new google.maps.Polygon({
+            strokeColor: '#000000',
+            strokeOpacity: 1.0,
+            strokeWeight: 3
+         });
+        // polyMap.setMap(map);
+        google.maps.event.addListener(map, 'click', function(e) {
+            if (google.maps.geometry.poly.containsLocation(e.latLng, polyMap)) {
+                    polyMap.setMap(map);
+                    polyMap.setOptions({fillColor: 'green'});
+                    $('#showresult').html("Your Point is within Area")
+                    $('#showresult').css({'color':'green'})
+                } else {
+                    polyMap.setMap(map);
+                    polyMap.setOptions({fillColor: 'red'});
+                    $('#showresult').html("Your Point is Outside Area")
+                    $('#showresult').css({'color':'red'})
+
+
+                }
+        });
+      }
+      function moveBack(){
+          window.location ="/"
+      }
+
+</script>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBjzz9Eecm5R-jSiTJGMvDaZElZfuTlQ0o&callback=myMap"></script>
+</body>
+</html> 
