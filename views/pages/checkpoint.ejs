@@ -32,15 +32,19 @@ function myMap() {
     var map=new google.maps.Map(document.getElementById("googleMap"),mapProp);
     var mapData={}
         $.get("http://localhost:1337/recent_point", function(data){
-            var savedData= data[0].co_ordinates.split(':')
-            var path = polyMap.getPath();
+            if(data.length){
+                var savedData= data[0].co_ordinates.split(':')
+                var path = polyMap.getPath();
 
-            for(let i=0 ;i<savedData.length - 1;i++ ){
-                var points = savedData[i].split(',')
-                mapData= new google.maps.LatLng(parseFloat(points[0]),parseFloat(points[1]))
-                path.push(mapData);
-                map.setCenter(mapData)
+                for(let i=0 ;i<savedData.length - 1;i++ ){
+                    var points = savedData[i].split(',')
+                    mapData= new google.maps.LatLng(parseFloat(points[0]),parseFloat(points[1]))
+                    path.push(mapData);
+                    map.setCenter(mapData)
+                }
             }
+           else 
+           alert("No recent data Found");
             
         });
          polyMap = new google.maps.Polygon({
